@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+        
+        h3 {
+            margin-top: 0;
+        }
+        
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        
+        .error-message {
+            color: red;
+        }
+        
+        .success-message {
+            color: green;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            var firstName = document.getElementById("firstName").value;
+            var lastName = document.getElementById("lastName").value;
+            var email = document.getElementById("email").value;
+            var userTickets = document.getElementById("userTickets").value;
+
+            if (firstName === "" || lastName === "" || email === "" || userTickets === "") {
+                alert("Please fill in all fields.");
+                return false;
+            }
+
+            if (userTickets < 1 || userTickets > 50) {
+                alert("Number of tickets should be between 1 and 50.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h3>Book your tickets!!!</h3>
+    {{.err}}
+    <h3>Total Remaining Tickets are: {{.totalRemainingTickets}}</h3>
+    <form method="post" action="/account/book" onsubmit="return validateForm()">
+        <label for="firstName">First Name:</label>
+        <input type="text" name="firstName" id="firstName" required />
+        <br>
+        <label for="lastName">Last Name:</label>
+        <input type="text" name="lastName" id="lastName" required />
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required />
+        <br>
+        <label for="userTickets">How many tickets do you want to book?</label>
+        <input type="number" name="userTickets" id="userTickets" required />
+        <br>
+        <input type="submit" value="Book">
+    </form>
+    <br>
+
+<div class="message">
+{{if .err}}
+<h3 class="error-message">Error occurred: {{.err}}</h3>
+<h4 class="error-message">Please try again with the correct information.</h4>
+{{else}}
+<h3 class="success-message">Thank you {{.firstName}} {{.lastName}} for booking {{.userTickets}} ticket(s). You will receive a confirmation mail to {{.email}}</h3>
+<h4 class="success-message">{{.totalRemainingTickets}} tickets are still remaining for {{.conferenceName}}</h4>
+{{end}}
+</div>
+
+</body>
+</html>

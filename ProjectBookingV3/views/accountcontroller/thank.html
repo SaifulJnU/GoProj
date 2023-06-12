@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+        
+        h3, h4 {
+            margin: 0;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h3 {
+            font-size: 24px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        h4 {
+            font-size: 18px;
+            color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <h3>Thank you {{.firstName}} {{.lastName}} for booking {{.userTickets}} ticket(s)! You will receive a confirmation mail to {{.email}}</h3>
+    <h4>{{.totalRemainingTickets}} tickets are still remaining for the Go Conference</h4>
+</body>
+</html>
