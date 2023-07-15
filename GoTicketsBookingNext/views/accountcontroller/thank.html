@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+    
+        h2, h3, h4 {
+            margin: 0;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        button {
+            margin: 0;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: block;
+            margin: 0 auto; /* Center the button horizontally */
+            cursor: pointer; /* Change cursor to pointer */
+            text-decoration: none; /* Remove underline */
+            font-family: Arial, sans-serif; /* Specify the font family */
+            font-size: 16px; /* Adjust the font size */
+            font-weight: bold; /* Add font weight */
+        }
+        a {
+            text-decoration: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    
+        h3 {
+            font-size: 24px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+    
+        h4 {
+            font-size: 18px;
+            color: #333333;
+        }
+    </style>
+    
+</head>
+<body> 
+    <h3>Thank you {{.firstName}} {{.lastName}} for booking {{.userTickets}} ticket(s)! You will receive a confirmation email at {{.email}}</h3>
+    
+    <h4>{{.totalRemainingTickets}} tickets are still available for the Go Conference</h4>
+
+    
+    <br>
+    <a href="/account/welcome"><button>Go to the welcome page</button></a> 
+</body>
+</html>

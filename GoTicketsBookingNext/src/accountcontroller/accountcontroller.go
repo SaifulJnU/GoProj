@@ -3,6 +3,7 @@ package accountcontroller
 import (
 	"fmt"
 	"net/http"
+	"net/smtp"
 	"strconv"
 	"sync"
 
@@ -36,9 +37,9 @@ func Index(response http.ResponseWriter, request *http.Request) {
 func Login(response http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	username := request.Form.Get("username")
-	password := request.Form.Get("password")
+	///password := request.Form.Get("password")
 
-	if username == "Saiful" && password == "123" {
+	if true {
 		session, _ := store.Get(request, "mysession")
 		session.Values["username"] = username
 		session.Save(request, response)
@@ -96,38 +97,43 @@ func Book(response http.ResponseWriter, request *http.Request) {
 		session.Values["email"] = email
 		session.Values["userTickets"] = userTickets
 		session.Values["totalRemainingTickets"] = totalRemainingTickets
+
+		totalRemainingTickets = totalRemainingTickets - userTickets
+		bookTickets(firstName, lastName, email, userTickets)
+
 		session.Save(request, response)
 
-		bookTickets(firstName, lastName, email, userTickets)
-		totalRemainingTickets = totalRemainingTickets - userTickets
+		// bookTickets(firstName, lastName, email, userTickets)
+		// totalRemainingTickets = totalRemainingTickets - userTickets
 
-		data := map[string]interface{}{
-			"firstName":             firstName,
-			"lastName":              lastName,
-			"email":                 email,
-			"userTickets":           userTickets,
-			"totalRemainingTickets": totalRemainingTickets,
-			"conferenceName":        conferenceName,
-		}
+		// data := map[string]interface{}{
+		// 	"firstName":             firstName,
+		// 	"lastName":              lastName,
+		// 	"email":                 email,
+		// 	"userTickets":           userTickets,
+		// 	"totalRemainingTickets": totalRemainingTickets,
+		// 	"conferenceName":        conferenceName,
+		// }
 
-		tmp, err := template.ParseFiles("views/accountcontroller/book.html")
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = tmp.Execute(response, data)
-		if err != nil {
-			fmt.Println(err)
-		}
+		// tmp, err := template.ParseFiles("views/accountcontroller/booking.html")
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		// err = tmp.Execute(response, data)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
 
-		http.Redirect(response, request, "/account/thank", http.StatusSeeOther)
+		http.Redirect(response, request, "/account/thank", http.StatusFound)
 
 		wg.Add(1) //for one thread
 		go sendTickets(userTickets, firstName, lastName, email)
+
 	} else {
 		data := map[string]interface{}{
 			"err": "Duplicate user found",
 		}
-		tmp, _ := template.ParseFiles("views/accountcontroller/book.html")
+		tmp, _ := template.ParseFiles("views/accountcontroller/booking.html")
 		tmp.Execute(response, data)
 
 	}
@@ -135,12 +141,28 @@ func Book(response http.ResponseWriter, request *http.Request) {
 	wg.Wait()
 }
 
+func Booking(response http.ResponseWriter, request *http.Request) {
+	tmp, _ := template.ParseFiles("views/accountcontroller/booking.html")
+	tmp.Execute(response, nil)
+}
+
 func Thank(response http.ResponseWriter, request *http.Request) {
 	session, _ := store.Get(request, "mysession")
 	username := session.Values["username"]
 
+	// data := map[string]interface{}{
+	// 	"firstName":             firstName,
+	// 	"lastName":              lastName,
+	// 	"email":                 email,
+	// 	"userTickets":           userTickets,
+	// 	"totalRemainingTickets": totalRemainingTickets,
+	// 	"conferenceName":        conferenceName,
+	// }
+
+	// tmp, err := template.ParseFiles("views/accountcontroller/booking.html")
+
 	firstName, lastName, email, userTickets, totalRemainingTickets := findLastInsertedUser()
-	fmt.Println("from thank you page ", firstName)
+	//fmt.Println("from thank you page ", firstName)
 
 	data := map[string]interface{}{
 		"firstName":             firstName,
@@ -153,6 +175,9 @@ func Thank(response http.ResponseWriter, request *http.Request) {
 
 	tmp, _ := template.ParseFiles("views/accountcontroller/thank.html")
 	tmp.Execute(response, data)
+
+	sendRealmail(firstName, lastName, email, userTickets, totalRemainingTickets)
+
 }
 
 func bookTickets(userFirstName string, userLastName string, userMailAddress string, userTickets int) {
@@ -166,24 +191,11 @@ func bookTickets(userFirstName string, userLastName string, userMailAddress stri
 
 	bookings = append(bookings, user)
 
-	fmt.Printf("Thank you %v %v for booking %v, you will receive a confirmation mail to %v\n", userFirstName, userLastName, userTickets, userMailAddress)
+	// fmt.Printf("Thank you %v %v for booking %v, you will receive a confirmation mail to %v\n", userFirstName, userLastName, userTickets, userMailAddress)
 
-	fmt.Printf("%v tickets are still remaining for %v\n", totalRemainingTickets, conferenceName)
+	// fmt.Printf("%v tickets are still remaining for %v\n", totalRemainingTickets, conferenceName)
 
 }
-
-// func printName() {
-
-// 	emails := []string{}
-// 	for _, booking := range bookings {
-
-// 		emails = append(emails, booking.userMailAddress)
-
-// 	}
-
-// 	fmt.Printf("Total bookings are: %v\n", emails)
-
-// }
 
 func checkUserValidation(email string) bool {
 	emails := make(map[string]int)
@@ -213,7 +225,7 @@ func findLastInsertedUser() (string, string, string, int, int) {
 
 func sendTickets(userTickets int, userFirstName string, userLastName string, userMailAddress string) {
 
-	//time.Sleep(20 * time.Second)
+	//time.Sleep(2 * time.Second)
 
 	var tickets = fmt.Sprintf("%v tickets for %v %v \n to mail: %v", userTickets, userFirstName, userLastName, userMailAddress)
 
@@ -223,4 +235,36 @@ func sendTickets(userTickets int, userFirstName string, userLastName string, use
 
 	wg.Done() // when thread is over
 
+}
+
+func sendRealmail(firstName string, lastName string, email string, userTickets int, totalReamainingTickets int) {
+
+	// Sender data
+	from := "developer.saiful98@gmail.com"
+	password := "xgcfbligriyajshc"
+
+	// Receiver data
+	toEmail := "saiful.cse98@gmail.com"
+	to := []string{toEmail}
+
+	host := "smtp.gmail.com"
+	port := "587"
+	address := host + ":" + port
+
+	// Message
+	subject := "Subject: Confirmation mail for Go conference ticket booking\r\n"
+
+	body := fmt.Sprintf("You have successfully booked %v tickets for %v %v \n to mail: %v \n We still have %v tickets left for the conference", userTickets, firstName, lastName, email, totalReamainingTickets)
+
+	message := []byte(subject + "\r\n" + body)
+
+	auth := smtp.PlainAuth("", from, password, host)
+	err := smtp.SendMail(address, auth, from, to, message)
+
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Println("Please check your mail for the confirmation.")
 }

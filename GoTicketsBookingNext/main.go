@@ -13,6 +13,7 @@ func main() {
 	http.HandleFunc("/account/welcome", accountcontroller.Welcome)
 	http.HandleFunc("/account/logout", accountcontroller.Logout)
 	http.HandleFunc("/account/book", accountcontroller.Book)
+	http.HandleFunc("/account/booking", accountcontroller.Booking)
 	http.HandleFunc("/account/thank", accountcontroller.Thank)
 
 	http.ListenAndServe(":3000", nil)

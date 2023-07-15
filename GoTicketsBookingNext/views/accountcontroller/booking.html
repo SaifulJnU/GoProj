@@ -12,8 +12,23 @@
             background-color: #f2f2f2;
         }
         
+        h2, h3, h4 {
+            margin: 0;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
         h3 {
-            margin-top: 0;
+            font-size: 24px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        h4 {
+            font-size: 18px;
+            color: #333333;
         }
         
         form {
@@ -83,9 +98,10 @@
     </script>
 </head>
 <body>
-    <h3>Book your tickets!!!</h3>
-    {{.err}}
-    <h3>Total Remaining Tickets are: {{.totalRemainingTickets}}</h3>
+    <h2 class="success-message">Book your tickets!!!</h2>
+    <!-- {{.err}} -->
+    <!-- <h3>Total Remaining Tickets are: {{.totalRemainingTickets}}</h3> -->
+    <br>
     <form method="post" action="/account/book" onsubmit="return validateForm()">
         <label for="firstName">First Name:</label>
         <input type="text" name="firstName" id="firstName" required />
@@ -105,11 +121,8 @@
 
 <div class="message">
 {{if .err}}
-<h3 class="error-message">Error occurred: {{.err}}</h3>
-<h4 class="error-message">Please try again with the correct information.</h4>
-{{else}}
-<h3 class="success-message">Thank you {{.firstName}} {{.lastName}} for booking {{.userTickets}} ticket(s). You will receive a confirmation mail to {{.email}}</h3>
-<h4 class="success-message">{{.totalRemainingTickets}} tickets are still remaining for {{.conferenceName}}</h4>
+<h3 class="error-message">Error occurred: {{.err}}!</h3>
+<h4 class="error-message">Please try again with the different email.</h4>
 {{end}}
 </div>
 
